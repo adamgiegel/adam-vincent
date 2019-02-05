@@ -30,3 +30,13 @@
     transform: rotate(360deg);
   }
 }
+
+.messageList {
+  font-family: "Times New Roman", Times, serif;
+  font-style: italic;
+  display: flex;
+  flex: 1 0 21%; /* explanation below */
+  margin: 5px;
+  height: 100px;
+  background-color: #11E3FA;
+}

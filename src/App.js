@@ -1,25 +1,85 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import Message from './Message'
+import Search from './Search'
 import './App.css';
+import Form from './Form'
 
 class App extends Component {
+
+  state = {
+    messages: [],
+    searchInput: ""
+  }
+
+  addKeyToMessage = m => ({...m, birthday: ''})
+
+
+  componentDidMount(){
+    fetch('http://fetch-message-in-the-bottle.herokuapp.com/api/v2/messages')
+    .then(response => response.json())
+    .then(allMessages => {
+      const messages = allMessages.map(message => this.addKeyToMessage(message))
+      this.setState(
+        prevState => {
+          return {
+            messages: messages
+          }
+        }
+    )
+
+  })
+}
+
+updateAppState = (newMessage) => {
+  console.log(newMessage)
+  this.setState({
+    messages: [...this.state.messages, newMessage]
+  }
+
+  )
+
+
+}
+
+removeMessage = (id) => {
+  fetch(`http://fetch-message-in-the-bottle.herokuapp.com/api/v2/messages/${id}`, {method: "DELETE"})
+  const toDelete = this.state.messages.filter(message => {
+      return message.id !== id
+    })
+  this.setState({
+    messages: toDelete
+  })
+}
+
+handleChange = (event) => {
+  this.setState({
+    searchInput: event.target.value
+  })
+}
+
+filterMessages = (searchInput) => {
+  return this.state.messages.filter(m => {
+
+     return m.message.toLowerCase().includes(this.state.searchInput.toLowerCase())})
+}
+
+addNewMessage = (message) => {
+  const newMessage = {
+    userName: message.userName,
+    message: message.message
+  }
+  this.setState({
+    messages: [newMessage, ...this.state.messages]
+  })
+}
+
   render() {
+    console.log(this.state)
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <Search handleChange={this.handleChange} searchInput={this.state.searchInput}/>
+      <Form addNewMessage={this.addNewMessage} updateAppState={this.updateAppState}/>
+      <Message removeMessage={this.removeMessage} messages={this.filterMessages()}/>
       </div>
     );
   }
